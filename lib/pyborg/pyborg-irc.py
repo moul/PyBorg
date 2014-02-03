@@ -161,14 +161,21 @@ class ModIRC(SingleServerIRCBot):
                     pass
 
     def our_start(self):
-        print "Connecting to server..."
-        SingleServerIRCBot.__init__(self, self.settings.servers, self.settings.myname, self.settings.realname, 2, self.settings.localaddress, self.settings.ipv6)
+        print "Connecting to servers: {}... ".format(', '.join([server[0] for server
+                                                                in self.settings.servers]))
+        SingleServerIRCBot.__init__(self,
+                                    self.settings.servers,
+                                    self.settings.myname,
+                                    self.settings.realname,
+                                    2,
+                                    self.settings.localaddress,
+                                    self.settings.ipv6)
 
         self.connection.execute_delayed(20, self._chan_checker)
         self.start()
 
-    def on_welcome(self, c, e):
-        print self.chans
+    def onw_elcome(self, c, e):
+        print "Joining chans: {}... ".format(', '.join(self.chans))
         for i in self.chans:
             c.join(i)
 
@@ -190,6 +197,7 @@ class ModIRC(SingleServerIRCBot):
         """
         Process leaving
         """
+        #print('kick', c, e)
         # Parse Nickname!username@host.mask.net to Nickname
         kicked = e.arguments()[0]
         kicker = e.source().split("!")[0]
@@ -207,6 +215,7 @@ class ModIRC(SingleServerIRCBot):
         """
         Process leaving
         """
+        #print('part', c, e)
         # Parse Nickname!username@host.mask.net to Nickname
         parter = e.source().split("!")[0]
 
@@ -218,6 +227,7 @@ class ModIRC(SingleServerIRCBot):
         """
         Process Joining
         """
+        #print('join', c, e)
         # Parse Nickname!username@host.mask.net to Nickname
         joiner = e.source().split("!")[0]
 
@@ -226,16 +236,20 @@ class ModIRC(SingleServerIRCBot):
             self.inchans.append(target.lower())
 
     def on_privmsg(self, c, e):
+        #print('privmsg', c, e)
         self.on_msg(c, e)
 
     def on_nicknameinuse(self, c, e):
         self.settings.myname = c.get_nickname()[:8] + `random.randint(0, 9)`
+        print('Name in use, trying {}...'.format(self.settings.myname))
         self.connection.nick(self.settings.myname)
 
     def on_pubmsg(self, c, e):
+        #print('pubmsg', c, e)
         self.on_msg(c, e)
 
     def on_ctcp(self, c, e):
+        #print('ctcp', c, e)
         ctcptype = e.arguments()[0]
         if ctcptype == "ACTION":
             self.on_msg(c, e)
@@ -252,6 +266,7 @@ class ModIRC(SingleServerIRCBot):
         """
         Process messages.
         """
+        #print('on_msg', c, e)
         # Parse Nickname!username@host.mask.net to Nickname
         source = e.source().split("!")[0]
         target = e.target()

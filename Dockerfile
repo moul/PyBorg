@@ -4,4 +4,4 @@ MAINTAINER Manfred Touron "m@42.am"
 ADD . /pyborg/
 WORKDIR /pyborg/
 
-CMD ./start.sh
+CMD ./boot.sh
